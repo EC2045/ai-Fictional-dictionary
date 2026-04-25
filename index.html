@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>架空AI図鑑 - Unexisting AI Encyclopedia</title>
+    <meta name="description" content="実在しないAIたちのアーカイブ。架空の知能体、アルゴリズム、設計哲学を網羅した圖鑑型百科事典。" />
+    <meta property="og:title" content="架空AI図鑑 - Unexisting AI Encyclopedia" />
+    <meta property="og:description" content="実在しないAIたちのアーカイブ。架空の知能体、アルゴリズム、設計哲学を網羅した圖鑑型百科事典。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ec2045.github.io/ai-Fictional-dictionary/" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP:wght@300;400;700&display=swap');
@@ -36,7 +42,9 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        .pixel-font { font-family: 'DotGothic16', sans-serif; }
+        .pixel-font {
+            font-family: 'DotGothic16', sans-serif;
+        }
 
         /* Loading Screen */
         #loading-screen {
@@ -52,10 +60,18 @@
         }
 
         @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
-        .loading-spinner { animation: spin-slow 2s linear infinite; }
+
+        .loading-spinner {
+            animation: spin-slow 2s linear infinite;
+        }
 
         .loader-bar-container {
             width: 200px;
@@ -64,6 +80,7 @@
             margin-bottom: 15px;
             overflow: hidden;
         }
+
         .loader-progress {
             height: 100%;
             width: 0%;
@@ -80,6 +97,7 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         .view-section.active {
             display: flex;
             flex-direction: column;
@@ -87,8 +105,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .ai-card {
@@ -98,6 +123,7 @@
             backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
+
         .ai-card:hover {
             transform: translateY(-5px);
             border-color: var(--accent-blue);
@@ -109,13 +135,17 @@
             border-radius: 2px;
             overflow: hidden;
         }
+
         .status-fill {
             height: 100%;
             width: 0%;
             transition: width 1s ease-out;
         }
 
-        .nav-link { position: relative; }
+        .nav-link {
+            position: relative;
+        }
+
         .nav-link::after {
             content: '';
             position: absolute;
@@ -126,7 +156,10 @@
             background: var(--accent-blue);
             transition: width 0.3s;
         }
-        .nav-link:hover::after { width: 100%; }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
 
         .icon-container {
             width: 100%;
@@ -136,6 +169,7 @@
             justify-content: center;
             overflow: hidden;
         }
+
         .ai-icon-img {
             max-width: 100%;
             max-height: 100%;
@@ -147,9 +181,17 @@
             animation: blink 0.8s infinite;
             margin-left: 2px;
         }
+
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
         }
 
         .fav-btn {
@@ -159,8 +201,15 @@
             z-index: 10;
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .fav-btn:active { transform: scale(0.8); }
-        .fav-btn.active svg { fill: #ef4444; stroke: #ef4444; }
+
+        .fav-btn:active {
+            transform: scale(0.8);
+        }
+
+        .fav-btn.active svg {
+            fill: #ef4444;
+            stroke: #ef4444;
+        }
 
         .home-back-btn {
             margin-top: 4rem;
@@ -171,48 +220,88 @@
             opacity: 0.5;
             transition: opacity 0.3s;
         }
-        .home-back-btn:hover { opacity: 1; }
+
+        .home-back-btn:hover {
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
 
     <div id="loading-screen">
         <div class="mb-8 loading-spinner text-sky-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v4" />
+                <path d="m16.2 7.8 2.9-2.9" />
+                <path d="M18 12h4" />
+                <path d="m16.2 16.2 2.9 2.9" />
+                <path d="M12 18v4" />
+                <path d="m4.9 19.1 2.9-2.9" />
+                <path d="M2 12h4" />
+                <path d="m4.9 4.9 2.9 2.9" />
+            </svg>
         </div>
         <div class="loader-bar-container">
             <div id="loader-progress" class="loader-progress"></div>
         </div>
-        <div id="loader-log" class="pixel-font text-[10px] text-sky-500/50 uppercase tracking-widest">Initialising Archive...</div>
+        <div id="loader-log" class="pixel-font text-[10px] text-sky-500/50 uppercase tracking-widest">Initialising
+            Archive...</div>
     </div>
 
-    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center backdrop-blur-md bg-[var(--nav-bg)] border-b border-[var(--border-color)]">
+    <nav
+        class="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center backdrop-blur-md bg-[var(--nav-bg)] border-b border-[var(--border-color)]">
         <div class="pixel-font font-bold text-sky-500 cursor-pointer text-xl" onclick="switchView('home')">
             U-AI ARCHIVE
         </div>
         <div class="flex items-center gap-6">
             <div class="hidden sm:flex gap-8">
-                <button onclick="switchView('catalog')" class="nav-link text-xs font-bold tracking-widest uppercase opacity-80 hover:opacity-100">Catalog</button>
-                <button onclick="switchView('about')" class="nav-link text-xs font-bold tracking-widest uppercase opacity-80 hover:opacity-100">About</button>
+                <button onclick="switchView('catalog')"
+                    class="nav-link text-xs font-bold tracking-widest uppercase opacity-80 hover:opacity-100">Catalog</button>
+                <button onclick="switchView('about')"
+                    class="nav-link text-xs font-bold tracking-widest uppercase opacity-80 hover:opacity-100">About</button>
             </div>
-            <button onclick="toggleTheme()" class="p-2 rounded-full bg-slate-500/10 hover:bg-slate-500/20 transition-colors" id="theme-btn">
-                <svg id="theme-icon-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-                <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            <button onclick="toggleTheme()"
+                class="p-2 rounded-full bg-slate-500/10 hover:bg-slate-500/20 transition-colors" id="theme-btn">
+                <svg id="theme-icon-sun" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
+                <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                </svg>
             </button>
         </div>
     </nav>
 
     <section id="view-home" class="view-section active flex items-center justify-center text-center px-6">
         <div class="max-w-4xl py-12">
-            <h2 class="text-sky-500 pixel-font text-xs md:text-sm mb-6 tracking-[0.5em] uppercase opacity-70">Unexisting Intelligence Repository</h2>
-            <h1 class="text-6xl md:text-9xl font-bold mb-10 pixel-font bg-clip-text text-transparent bg-gradient-to-b from-sky-400 to-indigo-500 leading-none">架空AI図鑑</h1>
+            <h2 class="text-sky-500 pixel-font text-xs md:text-sm mb-6 tracking-[0.5em] uppercase opacity-70">Unexisting
+                Intelligence Repository</h2>
+            <h1
+                class="text-6xl md:text-9xl font-bold mb-10 pixel-font bg-clip-text text-transparent bg-gradient-to-b from-sky-400 to-indigo-500 leading-none">
+                架空AI図鑑</h1>
             <p class="opacity-60 text-sm md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
                 実在しない知能たちのアーカイブ。<br>
                 プロトタイプの断片や、ネットの深淵に潜むプログラムを記録。
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="switchView('catalog')" class="bg-sky-500 hover:bg-sky-400 text-white px-10 py-5 rounded-full font-bold transition-all shadow-xl shadow-sky-500/20 active:scale-95">図鑑を観覧する</button>
-                <button onclick="switchView('about')" class="bg-white/5 border border-[var(--border-color)] px-10 py-5 rounded-full font-bold hover:bg-white/10 transition-all active:scale-95">About Us</button>
+                <button onclick="switchView('catalog')"
+                    class="bg-sky-500 hover:bg-sky-400 text-white px-10 py-5 rounded-full font-bold transition-all shadow-xl shadow-sky-500/20 active:scale-95">図鑑を観覧する</button>
+                <button onclick="switchView('about')"
+                    class="bg-white/5 border border-[var(--border-color)] px-10 py-5 rounded-full font-bold hover:bg-white/10 transition-all active:scale-95">About
+                    Us</button>
             </div>
         </div>
     </section>
@@ -222,16 +311,19 @@
             <header class="mb-16">
                 <div class="flex justify-between items-end mb-8">
                     <h2 class="text-4xl md:text-6xl font-bold pixel-font">Archives</h2>
-                    <button id="toggle-favorites" class="text-xs font-bold uppercase tracking-widest text-sky-500 flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <button id="toggle-favorites"
+                        class="text-xs font-bold uppercase tracking-widest text-sky-500 flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <span id="fav-label">Favorites Only</span>
                         <div id="fav-dot" class="w-2 h-2 rounded-full bg-slate-500"></div>
                     </button>
                 </div>
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-1">
-                        <input type="text" id="search-query" placeholder="AI名や作者で検索..." class="w-full bg-white/5 border border-[var(--border-color)] px-6 py-4 rounded-2xl text-sm focus:border-sky-500 outline-none transition-all">
+                        <input type="text" id="search-query" placeholder="AI名や作者で検索..."
+                            class="w-full bg-white/5 border border-[var(--border-color)] px-6 py-4 rounded-2xl text-sm focus:border-sky-500 outline-none transition-all">
                     </div>
-                    <select id="sort-order" class="bg-white/10 border border-[var(--border-color)] px-6 py-4 rounded-2xl text-sm outline-none md:w-56 cursor-pointer">
+                    <select id="sort-order"
+                        class="bg-white/10 border border-[var(--border-color)] px-6 py-4 rounded-2xl text-sm outline-none md:w-56 cursor-pointer">
                         <option value="no">図鑑番号順</option>
                         <option value="logic">Logic 順</option>
                         <option value="speed">Speed 順</option>
@@ -241,8 +333,12 @@
             </header>
             <div id="ai-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
             <div class="text-center">
-                <button onclick="switchView('home')" class="home-back-btn pixel-font text-xs uppercase tracking-widest font-bold">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back to Home
+                <button onclick="switchView('home')"
+                    class="home-back-btn pixel-font text-xs uppercase tracking-widest font-bold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg> Back to Home
                 </button>
             </div>
         </div>
@@ -254,17 +350,20 @@
                 <h2 class="text-5xl md:text-7xl font-bold mb-6 pixel-font">About Us</h2>
                 <div class="h-1.5 w-16 bg-sky-500 mx-auto rounded-full"></div>
             </div>
-            <div class="bg-[var(--card-bg)] border border-[var(--border-color)] p-8 md:p-14 rounded-[3rem] shadow-2xl space-y-10">
+            <div
+                class="bg-[var(--card-bg)] border border-[var(--border-color)] p-8 md:p-14 rounded-[3rem] shadow-2xl space-y-10">
                 <div>
                     <h3 class="text-3xl font-bold mb-6 text-sky-500 pixel-font">ただの架空の辞書です</h3>
                     <p class="opacity-80 mb-4 text-lg leading-relaxed">このプロジェクトは、デジタルの海に漂う「存在しない知能」をアーカイブするためのものです。</p>
                     <div class="inline-block px-4 py-2 bg-sky-500/10 border border-sky-500/20 rounded-full">
-                        <span class="text-sky-400 font-bold pixel-font text-sm tracking-tighter">made by art_r (2045 2/24)</span>
+                        <span class="text-sky-400 font-bold pixel-font text-sm tracking-tighter">made by art_r (2045
+                            2/24)</span>
                     </div>
                 </div>
 
                 <div class="pt-8 border-t border-white/5">
-                    <h4 class="text-xs uppercase tracking-[0.3em] font-bold text-white/40 mb-6 pixel-font">Update Logs</h4>
+                    <h4 class="text-xs uppercase tracking-[0.3em] font-bold text-white/40 mb-6 pixel-font">Update Logs
+                    </h4>
                     <div class="space-y-4 text-sm">
                         <div class="flex gap-4 group">
                             <span class="text-sky-500 font-bold pixel-font">v1.0.0</span>
@@ -278,16 +377,23 @@
                 </div>
             </div>
             <div class="text-center">
-                <button onclick="switchView('home')" class="home-back-btn pixel-font text-xs uppercase tracking-widest font-bold">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Back to Home
+                <button onclick="switchView('home')"
+                    class="home-back-btn pixel-font text-xs uppercase tracking-widest font-bold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg> Back to Home
                 </button>
             </div>
         </div>
     </section>
 
-    <div id="details-modal" class="fixed inset-0 hidden flex items-center justify-center p-4 z-[100] backdrop-blur-xl bg-black/60">
-        <div id="modal-container" class="bg-slate-900 w-full max-w-3xl rounded-[3rem] p-10 md:p-14 relative border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <button onclick="closeModal()" class="absolute top-8 right-10 text-slate-400 hover:text-white text-4xl transition-colors">&times;</button>
+    <div id="details-modal"
+        class="fixed inset-0 hidden flex items-center justify-center p-4 z-[100] backdrop-blur-xl bg-black/60">
+        <div id="modal-container"
+            class="bg-slate-900 w-full max-w-3xl rounded-[3rem] p-10 md:p-14 relative border border-white/10 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <button onclick="closeModal()"
+                class="absolute top-8 right-10 text-slate-400 hover:text-white text-4xl transition-colors">&times;</button>
             <div id="modal-content"></div>
         </div>
     </div>
@@ -322,7 +428,7 @@
 
         function toggleFavorite(e, no) {
             e.stopPropagation();
-            if (favorites.includes(no)) { favorites = favorites.filter(f => f !== no); } 
+            if (favorites.includes(no)) { favorites = favorites.filter(f => f !== no); }
             else { favorites.push(no); }
             localStorage.setItem('u-ai-favorites', JSON.stringify(favorites));
             renderGrid();
@@ -346,7 +452,7 @@
             element.classList.add('typing-cursor');
             let i = 0;
             const calculatedSpeed = Math.max(10, 150 - (speedParam * 1.3));
-            
+
             function type() {
                 if (i < text.length) {
                     element.innerHTML += text.charAt(i);
@@ -431,7 +537,7 @@
             const q = document.getElementById('search-query').value.toLowerCase();
             const sort = document.getElementById('sort-order').value;
             filteredData = aiData.filter(a => {
-                const mQ = (a.name||"").toLowerCase().includes(q) || (a.type||"").toLowerCase().includes(q) || (a.author||"").toLowerCase().includes(q);
+                const mQ = (a.name || "").toLowerCase().includes(q) || (a.type || "").toLowerCase().includes(q) || (a.author || "").toLowerCase().includes(q);
                 const mF = showOnlyFavs ? favorites.includes(a.no) : true;
                 return mQ && mF;
             });
@@ -447,7 +553,7 @@
         function showDetails(no) {
             const ai = aiData.find(a => a.no === no);
             const content = document.getElementById('modal-content');
-            
+
             content.innerHTML = `
                 <div class="flex flex-col gap-10">
                     <div class="flex flex-col md:flex-row gap-10 items-start">
@@ -479,10 +585,10 @@
                         ${renderStat('Utility', ai.status?.utility || 0, ai.color)}
                     </div>
                 </div>`;
-            
+
             document.getElementById('details-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            
+
             setTimeout(() => {
                 const desc = document.getElementById('typing-desc');
                 typeWriter(desc, ai.description, ai.status?.speed || 50);
@@ -518,4 +624,5 @@
         window.onclick = e => { if (e.target.id === 'details-modal') closeModal(); };
     </script>
 </body>
+
 </html>

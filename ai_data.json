@@ -19,6 +19,22 @@
       {
     "no": "P-09",
     "name": "Pulse-Dreamer",
+    "type": "非論理叙事詩・概念生成知能",
+    "rarity": "Existentia",
+    "origin": "Existentia",
+    "description": "普通のAIが「正しい答え」を出すのに対し、アンは「面白い嘘」や「不思議な世界観」を作ることに特化しています。",
+    "usage": "自分を忘れたい方向け",
+    "cost": "基本無料",
+    "status": { "logic": 12, "creative": 100, "utility": 65, "speed": 88, "value": 95 },
+    "speedCompare": "あなたの悩みは、3.5秒後にバターになります。おいしく召し上がれ。",
+    "color": "#818cf8",
+    "icon": "❓",
+    "author":"名乗るほどのものでもありません"
+    
+      },
+      {
+    "no": "P-09",
+    "name": "Pulse-Dreamer",
     "type": "睡眠誘導・夢設計知能",
     "rarity": "Subconscious",
     "origin": "Neuro-Audio Lab",

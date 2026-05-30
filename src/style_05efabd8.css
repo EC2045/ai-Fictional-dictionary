@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+
+:root {
+    --bg-color: #0a0f1d;
+    --text-color: #e2e8f0;
+    --card-bg: rgba(22, 28, 45, 0.8);
+    --border-color: rgba(255, 255, 255, 0.05);
+    --nav-bg: rgba(10, 15, 29, 0.9);
+    --accent-blue: #38bdf8;
+}
+
+body.light-mode {
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-bg: rgba(248, 250, 252, 0.9);
+    --accent-blue: #0284c7;
+}
+
+@font-face {
+    font-family: '2045alphabet';
+    src: url('https://ec2045.github.io/2045font/2045alphabet.otf') format('opentype');
+    font-display: swap;
+}
+
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: '2045alphabet', 'Noto Sans JP', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pixel-font {
+    font-family: 'DotGothic16', sans-serif;
+}
+
+/* Loading Screen */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #04070f;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease-in-out;
+}
+
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    animation: spin-slow 2s linear infinite;
+}
+
+.loader-bar-container {
+    width: 200px;
+    height: 2px;
+    background: rgba(56, 189, 248, 0.1);
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.loader-progress {
+    height: 100%;
+    width: 0%;
+    background: #38bdf8;
+    transition: width 0.3s ease;
+}
+
+/* View Management */
+.view-section {
+    display: none;
+    min-height: 100vh;
+    opacity: 0;
+    padding-top: 80px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.view-section.active {
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ai-card {
+    position: relative;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.ai-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-blue);
+}
+
+.status-bar {
+    height: 4px;
+    background: rgba(128, 128, 128, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.status-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 1s ease-out;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-blue);
+    transition: width 0.3s;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.icon-container {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ai-icon-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.typing-cursor::after {
+    content: '|';
+    animation: blink 0.8s infinite;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.fav-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fav-btn:active {
+    transform: scale(0.8);
+}
+
+.fav-btn.active svg {
+    fill: #ef4444;
+    stroke: #ef4444;
+}
+
+.home-back-btn {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+
+.home-back-btn:hover {
+    opacity: 1;
+}

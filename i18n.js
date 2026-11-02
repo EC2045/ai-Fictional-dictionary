@@ -1,30 +1,42 @@
 (() => {
   'use strict';
   const script = document.currentScript;
-  if (!script || document.getElementById('ec-language-guide')) return;
-  const key = 'ec2045-basic-language';
-  const read = k => { try { return localStorage.getItem(k); } catch { return null; } };
-  const write = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-  const detect = () => (navigator.languages || [navigator.language]).find(x => /^(ja|en)(-|$)/i.test(x))?.slice(0, 2).toLowerCase() || 'ja';
-  const native = !!document.querySelector('script[data-lang-path]');
-  const site = script.dataset.site || decodeURIComponent(location.pathname.split('/').filter(Boolean)[0] || 'ec2045.github.io');
+  if (!script || window.EC_I18N) return;
+  const storageKey = 'ec2045-basic-language';
+  const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
+  const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
+  const site = script.dataset.site || 'site';
+  const nativeScript = document.querySelector('script[data-lang-path]');
+  const hasNativeLanguage = !!nativeScript || site === 'RAC';
+  const supported = (nativeScript?.dataset.languages || script.dataset.languages || 'ja,en').split(',');
+  const detect = () => {
+    for (const value of navigator.languages || [navigator.language]) {
+      const code = String(value).toLowerCase().split('-')[0];
+      if (supported.includes(code)) return code;
+    }
+    return 'ja';
+  };
+  let preference = read(storageKey) || 'auto';
+  if (preference === 'en-x-es') preference = 'en';
+  if (preference !== 'auto' && !supported.includes(preference)) preference = 'auto';
+  let activeLanguage = 'ja', dictionary = Object.create(null), dictionaries = Object.create(null);
+  let queued = false, ready = false;
+  const originals = new WeakMap(), attributes = new WeakMap(), bound = new WeakSet();
   const normalise = text => text.replace(/\s+/g, ' ').trim();
-  const supported = (script.dataset.languages || 'ja,en').split(',');
-  let dictionaries = {}, dictionary = {}, activeLanguage = 'ja', queued = false;
-  const originals = new WeakMap(), attributes = new WeakMap();
-  const box = document.createElement('aside');
-  box.id = 'ec-language-guide';
-  box.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:99999;max-width:min(390px,calc(100vw - 32px));padding:12px 16px;border:1px solid #888;border-radius:12px;background:#fff;color:#18202a;box-shadow:0 4px 24px #0003;font:14px/1.6 system-ui,sans-serif;text-align:left;box-sizing:border-box';
-  const label = document.createElement('label');
-  label.textContent = '日本語 / English '; label.htmlFor = 'ec-language-choice';
-  const select = document.createElement('select'); select.id = 'ec-language-choice';
-  select.style.cssText = 'background:#fff;color:#18202a;border:1px solid #888;border-radius:5px;padding:4px;font:inherit';
-  for (const [value, text] of [['auto', '自動 / Auto'], ...supported.map(code => [code, ({ja:'日本語',en:'English','en-x-es':'English · Spanish-style spelling'})[code] || code])]) {
-    const option = document.createElement('option'); option.value = value; option.textContent = text; select.append(option);
+  function parseLang(source) {
+    const result = Object.create(null);
+    const decode = value => value.replace(/\\([\\nrt=])/g, (_, c) => ({n:'\n',r:'\r',t:'\t'}[c] ?? c));
+    for (const line of source.replace(/^\uFEFF/, '').split(/\r?\n/)) {
+      if (!line.trim() || /^\s*[#;]/.test(line)) continue;
+      let separator = -1;
+      for (let i=0;i<line.length;i++) { if (line[i] === '\\') { i++; continue; } if (line[i] === '=') { separator=i; break; } }
+      if (separator < 0) throw new Error('Invalid .lang entry');
+      const key = decode(line.slice(0,separator));
+      if (Object.hasOwn(result,key)) throw new Error('Duplicate .lang key: '+key);
+      result[key] = decode(line.slice(separator+1));
+    }
+    return result;
   }
-  const details = document.createElement('details'), summary = document.createElement('summary'), intro = document.createElement('p'), link = document.createElement('a');
-  intro.style.margin = '8px 0'; link.href = 'https://ec2045.github.io/'; link.style.color = '#2454aa';
-  details.append(summary, intro, link); box.append(label, select, details); document.body.append(box);
   function translate(original) {
     if (!activeLanguage.startsWith('en')) return original;
     const text = normalise(original);
@@ -50,103 +62,138 @@
       document.querySelectorAll('[data-i18n-html]').forEach(element => {
         const value = dictionaries[activeLanguage]?.[element.dataset.i18nHtml];
         if (value !== undefined && element.dataset.renderedLanguage !== activeLanguage) {
-          element.innerHTML = value; element.dataset.renderedLanguage = activeLanguage;
+          element.innerHTML = value;
+          element.dataset.renderedLanguage = activeLanguage;
         }
       });
       const walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_TEXT);
       while (walker.nextNode()) {
         const node = walker.currentNode, parent = node.parentElement;
-        if (!parent || parent.closest('script,style,code,pre,textarea,svg,[contenteditable="true"],#ec-language-guide,[data-lang-key],[data-i18n-html],[translate="no"]')) continue;
+        if (!parent || parent.closest('script,style,code,pre,textarea,svg,[contenteditable="true"],[data-i18n-ui],#font-ui-wrapper,#settings-menu,#rac-lang-sel,#lang-toggle,[data-lang-key],[data-i18n-html],[translate="no"]')) continue;
         const current = node.data;
         let record = originals.get(node);
-        if (!record || current !== record.last) record = { original: current, last: current };
+        if (!record || current !== record.last) record = {original:current,last:current};
         const translated = translate(record.original);
-        // Preserve implicit option values used by filters before changing their labels.
         if (translated !== current && parent.tagName === 'OPTION' && !parent.hasAttribute('value')) parent.value = parent.value;
         if (translated !== current) node.data = translated;
-        record.last = translated; originals.set(node, record);
+        record.last = translated; originals.set(node,record);
       }
       document.querySelectorAll('[placeholder],[alt],[title],[aria-label],meta[name="description"],meta[property="og:title"],meta[property="og:description"]').forEach(element => {
-        if (element.closest('#ec-language-guide,[translate="no"]')) return;
+        if (element.closest('[data-i18n-ui],[translate="no"]')) return;
         let records = attributes.get(element); if (!records) records = new Map();
-        for (const name of ['placeholder', 'alt', 'title', 'aria-label', 'content']) {
+        for (const name of ['placeholder','alt','title','aria-label','content']) {
           if (!element.hasAttribute(name)) continue;
           const current = element.getAttribute(name);
           let record = records.get(name);
-          if (!record || current !== record.last) record = { original: current, last: current };
+          if (!record || current !== record.last) record = {original:current,last:current};
           const translated = translate(record.original);
-          if (translated !== current) element.setAttribute(name, translated);
-          record.last = translated; records.set(name, record);
+          if (translated !== current) element.setAttribute(name,translated);
+          record.last = translated; records.set(name,record);
         }
-        attributes.set(element, records);
+        attributes.set(element,records);
       });
-    } finally { observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['placeholder', 'alt', 'title', 'aria-label', 'content'] }); }
+    } finally {
+      observer.observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['placeholder','alt','title','aria-label','content']});
+    }
+  }
+  function updateControls() {
+    document.querySelectorAll('[data-i18n-select]').forEach(select => { if (select.value !== preference) select.value = preference; });
+    document.querySelectorAll('[data-i18n-language]').forEach(button => {
+      const selected = button.dataset.i18nLanguage === preference;
+      button.setAttribute('aria-pressed',String(selected));
+    });
+  }
+  function nativeApply(language) {
+    if (site === 'RAC' && typeof window.setRacLanguage === 'function') window.setRacLanguage(language);
+    else if (site === 'onva' && typeof window.setOnvaLanguage === 'function') window.setOnvaLanguage(language);
+    else if (nativeScript && typeof window.setLang === 'function') window.setLang(language,false);
+  }
+  function apply(syncNative = false) {
+    if (!ready) return;
+    activeLanguage = preference === 'auto' ? detect() : preference;
+    dictionary = dictionaries[activeLanguage] || Object.create(null);
+    if (syncNative) nativeApply(activeLanguage);
+    document.documentElement.lang = activeLanguage;
+    translatePage();
+    updateControls();
+    window.dispatchEvent(new CustomEvent('site-language-change',{detail:{lang:activeLanguage,preference}}));
+  }
+  function choose(value) {
+    if (value !== 'auto' && !supported.includes(value)) return;
+    preference = value; write(storageKey,value); apply(true);
+  }
+  window.EC_I18N = {setLanguage:choose,getLanguage:()=>activeLanguage};
+  function mountControls() {
+    const nativeControl = document.querySelector('#lang-select,#rac-lang-sel');
+    if (nativeControl) {
+      if (nativeControl.getAttribute('aria-label') !== 'Language / 言語') nativeControl.setAttribute('aria-label','Language / 言語');
+      // Native controls retain their own options, event handlers and persistence.
+      return;
+    }
+    if (site === 'onva' || hasNativeLanguage) return;
+    const buttons = document.querySelectorAll('[data-i18n-language]');
+    if (buttons.length) {
+      buttons.forEach(button => {
+        if (bound.has(button)) return;
+        bound.add(button);
+        button.addEventListener('click',()=>choose(button.dataset.i18nLanguage));
+      });
+      updateControls(); return;
+    }
+    if (document.querySelector('[data-i18n-select]')) return;
+    const panel = document.querySelector('#settings-menu,#font-ui-panel');
+    const target = panel || document.querySelector(script.dataset.languageTarget || '[data-language-slot]');
+    if (!target) return;
+    const wrapper = document.createElement('label');
+    wrapper.className = panel ? 'site-language setting-group' : 'site-language';
+    wrapper.dataset.i18nUi = '';
+    const caption = document.createElement('span');
+    caption.textContent = 'Language';
+    const select = document.createElement('select');
+    select.dataset.i18nSelect = '';
+    select.setAttribute('aria-label','Language / 言語');
+    select.className = panel ? (target.id === 'settings-menu' ? 'custom-select' : 'setting-control') : '';
+    for (const [value,label] of [['auto','Auto'],['ja','日本語'],['en','English']]) {
+      const option = document.createElement('option'); option.value=value; option.textContent=label; select.append(option);
+    }
+    select.addEventListener('change',()=>choose(select.value));
+    wrapper.append(caption,select);
+    if (panel) {
+      wrapper.classList.add('site-language--settings');
+      const footer = target.querySelector('.mt-auto');
+      if (footer) footer.before(wrapper); else target.append(wrapper);
+    } else { target.dataset.languageHost = ''; target.append(wrapper); }
+    updateControls();
   }
   const observer = new MutationObserver(() => {
     if (queued) return;
-    queued = true; requestAnimationFrame(() => { queued = false; translatePage(); });
+    queued=true;
+    requestAnimationFrame(()=>{queued=false;mountControls();translatePage();});
   });
-  function apply(syncNative = false) {
-    const nativePreference = read('user-lang-setting');
-    activeLanguage = select.value === 'auto' ? (native && nativePreference ? nativePreference : detect()) : select.value;
-    if (!supported.includes(activeLanguage) && !native) activeLanguage = detect();
-    dictionary = dictionaries[activeLanguage] || dictionaries.en || {};
-    box.lang = activeLanguage;
-    const english = activeLanguage.startsWith('en');
-    summary.textContent = english ? 'About this site' : 'このサイトについて';
-    intro.textContent = dictionary['@intro'] || (english ? script.dataset.en || '' : script.dataset.ja || '');
-    link.textContent = english ? 'Explore the World Portal →' : '世界ポータルへ →';
-    intro.hidden = !intro.textContent;
-    if (!intro.textContent) intro.hidden = true;
-    let note = box.querySelector('[data-spelling-note]');
-    if (!note) { note = document.createElement('p'); note.dataset.spellingNote = ''; note.style.margin = '8px 0'; details.append(note); }
-    note.textContent = dictionary['@spelling.note'] || ''; note.hidden = !note.textContent;
-    if (syncNative && native && typeof window.setLang === 'function') window.setLang(activeLanguage);
-    if (!native) document.documentElement.lang = activeLanguage;
-    translatePage();
-    window.dispatchEvent(new CustomEvent('site-language-change', {detail:{lang:activeLanguage}}));
-  }
-  select.value = ['auto', ...supported].includes(read(key)) ? read(key) : 'auto';
-  select.addEventListener('change', () => {
-    write(key, select.value);
-    // Auto must resume browser detection instead of keeping a stale native choice.
-    if (select.value === 'auto' && native) write('user-lang-setting', detect());
-    apply(true);
-  });
-  window.addEventListener('languagechange', () => { if (select.value === 'auto') { if (native) write('user-lang-setting', detect()); apply(true); } });
-  window.addEventListener('ec2045:languagechange', event => {
-    const lang = event.detail.lang;
-    const saved = read(key);
-    // A late native startup must not overwrite an explicit cross-site choice.
-    if (!event.detail.userInitiated && supported.includes(saved) && saved !== lang) {
-      window.setLang(saved);
-      return;
+  window.addEventListener('ec2045:languagechange',event=>{
+    const language = event.detail.lang;
+    if (!event.detail.userInitiated && preference !== 'auto' && preference !== language && supported.includes(preference)) {
+      nativeApply(preference); return;
     }
-    if (event.detail.userInitiated) write(key, supported.includes(lang) ? lang : 'auto');
-    select.value = supported.includes(lang) ? lang : 'auto';
+    if (event.detail.userInitiated) { preference=language;write(storageKey,language); }
+    else if (preference === 'auto') { activeLanguage=language;dictionary=dictionaries[language]||{};translatePage();updateControls();return; }
     apply(false);
   });
-  const initialise = () => apply(select.value !== 'auto');
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialise, { once: true }); else initialise();
-  function parseLang(source) {
-    const result = Object.create(null);
-    const decode = value => value.replace(/\\([\\nrt=])/g, (_, c) => ({n:'\n',r:'\r',t:'\t'}[c] ?? c));
-    for (const line of source.replace(/^\uFEFF/, '').split(/\r?\n/)) {
-      if (!line.trim() || /^\s*[#;]/.test(line)) continue;
-      let separator = -1;
-      for (let i=0;i<line.length;i++) { if (line[i] === '\\') { i++; continue; } if (line[i] === '=') {separator=i;break;} }
-      if (separator < 0) throw new Error('Invalid .lang entry');
-      const key=decode(line.slice(0,separator));
-      if (Object.hasOwn(result,key)) throw new Error('Duplicate .lang key: '+key);
-      result[key]=decode(line.slice(separator+1));
-    }
-    return result;
+  window.addEventListener('languagechange',()=>{if(preference==='auto')apply(true);});
+  async function initialise() {
+    const style = document.createElement('style');
+    style.textContent = '.site-language{display:inline-flex;align-items:center;gap:.65rem;flex-shrink:0;max-width:100%;font:inherit;font-size:.75rem;letter-spacing:.04em;color:inherit;margin:.5rem 0}.site-language>span{opacity:.6}.site-language select{font:inherit;color:inherit;background:transparent;border:1px solid currentColor;border-radius:.3em;padding:.45em .65em;min-height:2.4em;max-width:11rem;cursor:pointer}.site-language select option{color:CanvasText;background:Canvas}.site-language select:focus-visible{outline:2px solid currentColor;outline-offset:3px}.site-language--settings{display:flex;flex-direction:column;align-items:stretch;gap:.75rem;margin:1.5rem 0}.site-language--settings select{max-width:100%;width:100%}[data-language-slot]{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;margin:.5rem 0}[data-language-slot="center"]{justify-content:center}@media(max-width:480px){.site-language>span{display:none}.site-language select{max-width:8rem;font-size:.75rem}}';
+    document.head.append(style);
+    mountControls();
+    await Promise.all(['ja','en'].map(async language=>{
+      try {
+        const response = await fetch(new URL('lang/'+language+'.lang?v=20261102-ui2',script.src));
+        if(!response.ok)throw new Error('Translations: '+response.status);
+        dictionaries[language]=parseLang(await response.text());
+      } catch(error){console.warn('[site-i18n]',error);}
+    }));
+    ready=true;mountControls();apply(true);
   }
-  Promise.all(supported.map(async language => {
-    try {
-      const response=await fetch(new URL('lang/'+language+'.lang?v=20261102-1',script.src));
-      if(!response.ok) throw new Error('Translations: '+response.status);
-      dictionaries[language]=parseLang(await response.text());
-    } catch(error) { console.warn('[ec2045-i18n]',error); }
-  })).then(() => apply(false));
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialise,{once:true});else initialise();
 })();
+
